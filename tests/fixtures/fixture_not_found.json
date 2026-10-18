@@ -1,0 +1,13 @@
+{
+  "ok": true,
+  "data": [
+    {
+      "orderNo": "PDN0000000001",
+      "statusCodeConfig": {
+        "lanName": "Sorry, your tracking attempt was not successful. Please check your tracking number.",
+        "iconUrl": "https://img.pdn.express/prod/EVENT_STATUS_CODE_ICON/2024/10/PXj7n8ySVTgqKZDzufL.png",
+        "fontColor": "#262626"
+      }
+    }
+  ]
+}
