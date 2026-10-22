@@ -312,7 +312,9 @@ def normalize_parcel(raw: dict, *, include_history: bool = False) -> dict:
         "status": status,
         "raw_status": raw_status,
         "delivered": delivered,
-        "delivered_at": parse_event_time(status_event) if delivered else None,
+        "delivered_at": parse_event_time(status_event)
+        if delivered and status_event
+        else None,
         "planned_from": None,
         "planned_to": None,
         "pickup": pickup,

@@ -249,11 +249,15 @@ class _PDNExpressPickupListSensor(
     _attr_state_class = SensorStateClass.MEASUREMENT
     _attr_attribution = ATTRIBUTION
     _unrecorded_attributes = frozenset({"parcels"})
+    _suffix: str
 
     def __init__(self, coordinator: PDNExpressCoordinator, entry: ConfigEntry) -> None:
         super().__init__(coordinator)
         self._attr_unique_id = f"{entry.entry_id}_{self._suffix}"
         self._attr_device_info = build_device_info(entry)
+
+    def _parcels(self) -> list[dict]:
+        raise NotImplementedError
 
     @property
     def native_value(self) -> int:
