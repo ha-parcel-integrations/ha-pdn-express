@@ -1,4 +1,5 @@
 """PDN Express public tracking API client."""
+
 from __future__ import annotations
 
 from typing import Any
@@ -62,7 +63,9 @@ class PDNExpressApiClient:
             if response.status == 429:
                 retry_after_header = response.headers.get("Retry-After")
                 try:
-                    retry_after = float(retry_after_header) if retry_after_header else None
+                    retry_after = (
+                        float(retry_after_header) if retry_after_header else None
+                    )
                 except ValueError:
                     retry_after = None  # an HTTP-date, not seconds; let the caller's own backoff handle it
                 raise PDNExpressApiError(

@@ -11,11 +11,12 @@ Two things here are carrier-specific: :data:`_STATUS_MAP` and
 contract, the delivered filter, the one-shot warnings — is suite-wide
 machinery.
 """
+
 from __future__ import annotations
 
+from datetime import UTC, datetime, timedelta, timezone
 import logging
 import re
-from datetime import datetime, timedelta, timezone
 from typing import Any
 
 from homeassistant.config_entries import ConfigEntry
@@ -176,11 +177,11 @@ def parse_iso(value: str | None) -> datetime | None:
     if not value:
         return None
     try:
-        parsed = datetime.fromisoformat(str(value).replace("Z", "+00:00"))
+        parsed = datetime.fromisoformat(str(value))
     except ValueError:
         return None
     if parsed.tzinfo is None:
-        parsed = parsed.replace(tzinfo=timezone.utc)
+        parsed = parsed.replace(tzinfo=UTC)
     return parsed
 
 
@@ -223,7 +224,9 @@ def _warn_unknown_shape(raw: dict) -> None:
     """Warn once about keys and pickup hints we have never seen."""
     extra = sorted(set(raw) - _KNOWN_ENTRY_KEYS)
     if extra:
-        warn_once("entry-keys:" + ",".join(extra), "PDN Express entry has new keys: %s", extra)
+        warn_once(
+            "entry-keys:" + ",".join(extra), "PDN Express entry has new keys: %s", extra
+        )
     for event in raw.get("events") or []:
         if not isinstance(event, dict):
             continue
@@ -353,14 +356,12 @@ def apply_delivered_filter(parcels: list[dict], entry: ConfigEntry) -> list[dict
     shows.
     """
     options = entry.options
-    filter_type = options.get(
-        CONF_DELIVERED_FILTER_TYPE, DEFAULT_DELIVERED_FILTER_TYPE
-    )
+    filter_type = options.get(CONF_DELIVERED_FILTER_TYPE, DEFAULT_DELIVERED_FILTER_TYPE)
     amount = int(
         options.get(CONF_DELIVERED_FILTER_AMOUNT, DEFAULT_DELIVERED_FILTER_AMOUNT)
     )
     if filter_type == "days":
-        cutoff = datetime.now(timezone.utc) - timedelta(days=amount)
+        cutoff = datetime.now(UTC) - timedelta(days=amount)
         return [
             parcel
             for parcel in parcels

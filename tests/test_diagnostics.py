@@ -1,10 +1,12 @@
 """Tests for PDN Express diagnostics."""
+
 from datetime import timedelta
 from unittest.mock import MagicMock
 
-from custom_components.pdn_express.diagnostics import (
-    async_get_config_entry_diagnostics,
-)
+from custom_components.pdn_express.diagnostics import async_get_config_entry_diagnostics
+from custom_components.pdn_express.parcels import normalize_parcel
+
+from .payloads import delivered_sample
 
 
 async def test_diagnostics_redacts_and_counts(hass):
@@ -70,10 +72,6 @@ async def test_diagnostics_reports_suspended_polling(hass):
 
 
 async def test_diagnostics_redacts_the_number_locations_and_descriptions(hass):
-    from custom_components.pdn_express.parcels import normalize_parcel
-
-    from .payloads import delivered_sample
-
     parcel = normalize_parcel(delivered_sample(), include_history=True)
     entry = MagicMock()
     entry.options = {"parcels": []}

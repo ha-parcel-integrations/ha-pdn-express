@@ -4,6 +4,7 @@ Keep them in one module rather than inline in each test — when the payload
 shape turns out to be different from what was assumed, there is then exactly
 one place to fix. The JSON files in ``fixtures/`` are scrubbed real replies.
 """
+
 from __future__ import annotations
 
 import json
@@ -62,10 +63,20 @@ def delivered_sample(code: str = DELIVERED_CODE) -> dict:
     return entry(
         code,
         [
-            event("D860", "2026-09-19 13:59:10", "Your package has been delivered to the Mailbox."),
+            event(
+                "D860",
+                "2026-09-19 13:59:10",
+                "Your package has been delivered to the Mailbox.",
+            ),
             event("D840", "2026-09-18 01:49:24", "Your package is out for delivery."),
             event("D830", "2026-09-17 23:37:58", "Arrived at our facility."),
-            event("D800", "2026-09-07 01:44:08", "Package information received.", utc="UTC+0", location=None),
+            event(
+                "D800",
+                "2026-09-07 01:44:08",
+                "Package information received.",
+                utc="UTC+0",
+                location=None,
+            ),
         ],
     )
 

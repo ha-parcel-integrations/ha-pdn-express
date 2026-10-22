@@ -1,4 +1,5 @@
 """Calendar platform for the PDN Express parcel tracker integration."""
+
 from __future__ import annotations
 
 from datetime import datetime, timedelta
@@ -20,17 +21,20 @@ PARALLEL_UPDATES = 0
 _DEFAULT_EVENT_DURATION = timedelta(hours=1)
 
 
-
 async def async_setup_entry(
     hass: HomeAssistant,
     entry: PDNExpressConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Set up the PDN Express deliveries calendar from a config entry."""
-    async_add_entities([PDNExpressDeliveriesCalendar(entry.runtime_data.coordinator, entry)])
+    async_add_entities(
+        [PDNExpressDeliveriesCalendar(entry.runtime_data.coordinator, entry)]
+    )
 
 
-class PDNExpressDeliveriesCalendar(CoordinatorEntity[PDNExpressCoordinator], CalendarEntity):
+class PDNExpressDeliveriesCalendar(
+    CoordinatorEntity[PDNExpressCoordinator], CalendarEntity
+):
     """A read-only calendar of expected PDN Express deliveries.
 
     Each active tracked parcel with a known delivery moment becomes an event.
@@ -60,7 +64,9 @@ class PDNExpressDeliveriesCalendar(CoordinatorEntity[PDNExpressCoordinator], Cal
 
             barcode = parcel.get("barcode") or ""
             sender = parcel.get("sender")
-            summary = sender or (f"Parcel {barcode}" if barcode else "PDN Express parcel")
+            summary = sender or (
+                f"Parcel {barcode}" if barcode else "PDN Express parcel"
+            )
             description_parts = [
                 f"Barcode: {barcode}" if barcode else None,
                 f"Status: {parcel.get('status')}" if parcel.get("status") else None,

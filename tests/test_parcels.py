@@ -4,8 +4,9 @@ These need no Home Assistant instance — the whole point of keeping
 ``parcels.py`` free of I/O is that the carrier-specific mapping can be tested
 as plain functions.
 """
+
+from datetime import UTC, datetime, timedelta
 import logging
-from datetime import datetime, timedelta, timezone
 
 import pytest
 from pytest_homeassistant_custom_component.common import MockConfigEntry
@@ -46,7 +47,7 @@ from .payloads import (
 
 
 @pytest.mark.parametrize(
-    "code,expected",
+    ("code", "expected"),
     [
         ("D800", ParcelStatus.REGISTERED),
         ("D830", ParcelStatus.IN_TRANSIT),
@@ -82,13 +83,13 @@ def test_unmapped_status_warns_only_once_with_code_and_label(caplog):
 
 def test_parse_iso_handles_z_naive_and_garbage():
     assert parse_iso("2026-04-29T13:12:42Z").tzinfo is not None
-    assert parse_iso("2026-04-29T13:12:42").tzinfo == timezone.utc
+    assert parse_iso("2026-04-29T13:12:42").tzinfo == UTC
     assert parse_iso("not-a-date") is None
     assert parse_iso(None) is None
 
 
 @pytest.mark.parametrize(
-    "utc,expected",
+    ("utc", "expected"),
     [
         ("UTC+2", "2026-09-19T13:59:10+02:00"),
         ("UTC+0", "2026-09-19T13:59:10+00:00"),
@@ -103,9 +104,7 @@ def test_parse_event_time_applies_the_stated_offset(utc, expected):
 
 def test_parse_event_time_ignores_the_iana_zone():
     """The stated offset wins, including for the old Canadian zones."""
-    item = event(
-        "D860", "2026-01-10 09:00:00", "x", utc="UTC-5", zone="Canada/Eastern"
-    )
+    item = event("D860", "2026-01-10 09:00:00", "x", utc="UTC-5", zone="Canada/Eastern")
     assert parse_event_time(item) == "2026-01-10T09:00:00-05:00"
 
 
@@ -287,7 +286,9 @@ def test_problem_then_in_transit_then_out_for_delivery_follows_the_newest():
         event("D850", "2026-09-13 18:00:00", "Unable to Deliver."),
         event("D840", "2026-09-12 10:00:00", "Out."),
     ]
-    in_transit = entry("P", [event("D830", "2026-09-14 09:00:00", "Back at depot.")] + base)
+    in_transit = entry(
+        "P", [event("D830", "2026-09-14 09:00:00", "Back at depot."), *base]
+    )
     again = entry(
         "P",
         [event("D840", "2026-09-15 09:00:00", "Out.")] + in_transit["events"],
@@ -374,7 +375,10 @@ def test_pickup_site_without_a_name_is_pickup_with_no_point():
 
 
 def test_pickup_site_is_ignored_once_delivered_or_returning():
-    for code, status in (("D860", ParcelStatus.DELIVERED), ("D890", ParcelStatus.RETURNING)):
+    for code, status in (
+        ("D860", ParcelStatus.DELIVERED),
+        ("D890", ParcelStatus.RETURNING),
+    ):
         raw = pickup_sample()
         raw["events"].insert(0, event(code, "2026-09-20 10:00:00", "x"))
         parcel = normalize_parcel(raw)
@@ -393,7 +397,9 @@ def test_pickup_site_id_alone_warns_once_and_leaves_the_point_empty(caplog):
 
 
 def test_d845_maps_to_at_pickup_point_with_a_one_shot_warning(caplog):
-    raw = entry("P", [event("D845", "2026-09-20 10:00:00", "Ready for pickup.", label="Ready")])
+    raw = entry(
+        "P", [event("D845", "2026-09-20 10:00:00", "Ready for pickup.", label="Ready")]
+    )
     for _ in range(2):
         parcel = normalize_parcel(raw)
     assert parcel["status"] == ParcelStatus.AT_PICKUP_POINT
@@ -465,7 +471,7 @@ def _entry(filter_type: str, amount: int) -> MockConfigEntry:
 
 
 def _delivered_pair() -> list[dict]:
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     return [
         {"barcode": "RECENT", "delivered_at": (now - timedelta(days=1)).isoformat()},
         {"barcode": "OLD", "delivered_at": (now - timedelta(days=30)).isoformat()},

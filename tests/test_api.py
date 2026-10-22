@@ -1,14 +1,12 @@
 """Tests for the PDN Express API client."""
+
 import json
 from unittest.mock import AsyncMock, MagicMock
 
 import aiohttp
 import pytest
 
-from custom_components.pdn_express.api import (
-    PDNExpressApiClient,
-    PDNExpressApiError,
-)
+from custom_components.pdn_express.api import PDNExpressApiClient, PDNExpressApiError
 
 from .payloads import delivered_sample, load_fixture
 
@@ -102,7 +100,9 @@ async def test_failure_envelope_without_detail_raises():
         await client.async_get_parcel(CODE)
 
 
-@pytest.mark.parametrize("body", [{"ok": True, "data": []}, {"ok": True, "data": ["x"]}, {"ok": True}])
+@pytest.mark.parametrize(
+    "body", [{"ok": True, "data": []}, {"ok": True, "data": ["x"]}, {"ok": True}]
+)
 async def test_missing_entry_raises(body):
     client = PDNExpressApiClient(_session_returning(200, body))
     with pytest.raises(PDNExpressApiError):
@@ -124,7 +124,9 @@ async def test_rate_limit_carries_retry_after():
     assert err.value.status_code == 429 and err.value.retry_after == 120.0
 
 
-@pytest.mark.parametrize("headers", [{}, {"Retry-After": "Wed, 21 Oct 2026 07:28:00 GMT"}])
+@pytest.mark.parametrize(
+    "headers", [{}, {"Retry-After": "Wed, 21 Oct 2026 07:28:00 GMT"}]
+)
 async def test_rate_limit_without_seconds_has_no_retry_after(headers):
     client = PDNExpressApiClient(_session_returning(429, {}, headers))
     with pytest.raises(PDNExpressApiError) as err:

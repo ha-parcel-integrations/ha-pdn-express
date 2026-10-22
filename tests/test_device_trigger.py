@@ -1,4 +1,5 @@
 """Tests for PDN Express device triggers."""
+
 from unittest.mock import AsyncMock
 
 from custom_components.pdn_express.const import DOMAIN
