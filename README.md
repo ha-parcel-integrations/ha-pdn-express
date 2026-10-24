@@ -2,7 +2,7 @@
 
 [![Release](https://img.shields.io/github/v/release/ha-parcel-integrations/ha-pdn-express.svg)](https://github.com/ha-parcel-integrations/ha-pdn-express/releases)
 [![Downloads](https://img.shields.io/github/downloads/ha-parcel-integrations/ha-pdn-express/total.svg)](https://github.com/ha-parcel-integrations/ha-pdn-express/releases)
-[![HACS](https://img.shields.io/badge/HACS-Custom-41BDF5.svg)](https://github.com/hacs/integration)
+[![HACS](https://img.shields.io/badge/HACS-Default-41BDF5.svg)](https://github.com/hacs/integration)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 > 📦 Part of [**ha-parcel-integrations**](https://ha-parcel-integrations.github.io/), a family of package-tracking integrations for Home Assistant that all publish the same parcel format, statuses and events, so they plug into cross-carrier automations and the optional [Parcel Aggregator](https://github.com/ha-parcel-integrations/ha-parcel-aggregator). Browse the other carriers on the website.
@@ -52,9 +52,9 @@ A custom Home Assistant integration that tracks your [PDN Express](https://pdn.e
 
 ### HACS (recommended)
 
-1. In HACS, choose the three-dot menu → **Custom repositories**.
-2. Add `https://github.com/ha-parcel-integrations/ha-pdn-express` as an **Integration**.
-3. Install **PDN Express** and restart Home Assistant if HACS asks you to.
+1. Open HACS and search for **PDN Express**.
+2. Install it.
+3. Restart Home Assistant.
 
 Or click the button below to open it directly in HACS:
 
