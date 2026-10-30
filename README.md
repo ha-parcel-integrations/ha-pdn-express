@@ -116,7 +116,9 @@ Standard HA removal applies: **Settings → Devices & Services → PDN Express �
 | `sensor.pdn_express_incoming_parcels` | Number of active tracked parcels, full list under the `parcels` attribute |
 | `sensor.pdn_express_parcel_<code>` | One per tracked parcel; state is the canonical status, attributes carry the full normalised parcel |
 | `sensor.pdn_express_next_delivery` | Earliest expected delivery moment across all active parcels |
+| `sensor.pdn_express_awaiting_pickup` | Incoming parcels that are ready to collect at a pickup point |
 | `sensor.pdn_express_delivered_parcels` | Recently delivered parcels (see the retention option) |
+| `calendar.pdn_express_deliveries` | Read-only calendar of expected deliveries, no extra API calls |
 | `sensor.pdn_express_last_successful_update` | Diagnostic: when PDN Express was last polled successfully |
 
 A delivered parcel moves from its per-parcel sensor to the delivered sensor automatically.
@@ -182,7 +184,7 @@ logger:
 ## Troubleshooting
 
 - **A parcel shows `unknown`** — PDN Express has no scans for it yet, or the code is wrong. It will pick up automatically once scanned.
-- **A status logs "Unrecognised PDN Express status"** — please [open an issue](https://github.com/ha-parcel-integrations/ha-pdn-express/issues/new) with the logged line so the mapping can be extended.
+- **A status logs "Unrecognised PDN Express status"** — please [open an issue](https://github.com/ha-parcel-integrations/ha-pdn-express/issues/new?template=unrecognised_status.yml) with the logged line so the mapping can be extended.
 
 ## Related integrations
 
