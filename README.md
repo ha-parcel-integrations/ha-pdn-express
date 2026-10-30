@@ -116,6 +116,7 @@ Standard HA removal applies: **Settings → Devices & Services → PDN Express �
 | `sensor.pdn_express_incoming_parcels` | Number of active tracked parcels, full list under the `parcels` attribute |
 | `sensor.pdn_express_parcel_<code>` | One per tracked parcel; state is the canonical status, attributes carry the full normalised parcel |
 | `sensor.pdn_express_next_delivery` | Earliest expected delivery moment across all active parcels |
+| `sensor.pdn_express_en_route_to_pickup_point` | Incoming parcels on their way to a pickup point that have not arrived yet |
 | `sensor.pdn_express_awaiting_pickup` | Incoming parcels that are ready to collect at a pickup point |
 | `sensor.pdn_express_delivered_parcels` | Recently delivered parcels (see the retention option) |
 | `calendar.pdn_express_deliveries` | Read-only calendar of expected deliveries, no extra API calls |
