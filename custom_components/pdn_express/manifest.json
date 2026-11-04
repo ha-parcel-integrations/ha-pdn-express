@@ -1,6 +1,7 @@
 {
   "domain": "pdn_express",
   "name": "PDN Express",
+  "categories": ["productivity_information"],
   "codeowners": [
     "@peter-mdf"
   ],
