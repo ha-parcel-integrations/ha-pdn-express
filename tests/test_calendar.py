@@ -1,7 +1,9 @@
 """Tests for the PDN Express deliveries calendar."""
 
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime
 from unittest.mock import MagicMock
+
+from homeassistant.components.calendar import CalendarEvent
 
 from custom_components.pdn_express.calendar import PDNExpressDeliveriesCalendar
 
@@ -106,3 +108,39 @@ async def test_get_events_filters_by_range():
     end = datetime(2100, 1, 1, tzinfo=UTC)
     events = await cal.async_get_events(MagicMock(), start, end)
     assert {e.uid for e in events} == {"FUTURE"}
+
+
+def _mixed_events():
+    return [
+        CalendarEvent(
+            start=date(2099, 3, 1), end=date(2099, 3, 2), summary="ALLDAY", uid="ALLDAY"
+        ),
+        CalendarEvent(
+            start=datetime(2099, 3, 5, 10, 0, tzinfo=UTC),
+            end=datetime(2099, 3, 5, 11, 0, tzinfo=UTC),
+            summary="TIMED",
+            uid="TIMED",
+        ),
+    ]
+
+
+def test_event_handles_all_day_and_timed():
+    cal = _cal([])
+    cal._events = _mixed_events
+    assert cal.event.uid == "ALLDAY"
+    cal._events = lambda: _mixed_events()[1:]
+    assert cal.event.uid == "TIMED"
+
+
+async def test_get_events_handles_all_day_and_timed():
+    cal = _cal([])
+    cal._events = _mixed_events
+    start = datetime(2099, 1, 1, tzinfo=UTC)
+    both = await cal.async_get_events(
+        MagicMock(), start, datetime(2099, 12, 1, tzinfo=UTC)
+    )
+    assert {e.uid for e in both} == {"ALLDAY", "TIMED"}
+    only_timed = await cal.async_get_events(
+        MagicMock(), datetime(2099, 3, 4, tzinfo=UTC), datetime(2099, 12, 1, tzinfo=UTC)
+    )
+    assert {e.uid for e in only_timed} == {"TIMED"}

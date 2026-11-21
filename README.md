@@ -139,7 +139,7 @@ The `status` field is the carrier-agnostic enum shared by the whole integration 
 | `problem` | A delivery attempt failed (address not found, nobody home, incorrect address) or the delivery was postponed |
 | `unknown` | Not yet scanned, or a status we have not mapped yet |
 
-Pickup-point deliveries have not been seen yet. When a scan names the pickup point, its shop name shows as `pickup_point` and the parcel counts as `pickup`; the integration logs a warning the first time so the real shape can be confirmed, and you are welcome to report it.
+Pickup-point deliveries have not been seen yet. When a scan names the pickup point, its shop name shows as `pickup_point` and the parcel counts as `pickup`, which stays set after collection; the integration logs a warning the first time so the real shape can be confirmed, and you are welcome to report it.
 
 The carrier's own human-readable text is always available as `raw_status`.
 

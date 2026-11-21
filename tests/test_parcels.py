@@ -374,7 +374,7 @@ def test_pickup_site_without_a_name_is_pickup_with_no_point():
     assert parcel["pickup"] is True and parcel["pickup_point"] is None
 
 
-def test_pickup_site_is_ignored_once_delivered_or_returning():
+def test_pickup_site_stays_pickup_once_delivered_or_returning():
     for code, status in (
         ("D860", ParcelStatus.DELIVERED),
         ("D890", ParcelStatus.RETURNING),
@@ -383,7 +383,7 @@ def test_pickup_site_is_ignored_once_delivered_or_returning():
         raw["events"].insert(0, event(code, "2026-09-20 10:00:00", "x"))
         parcel = normalize_parcel(raw)
         assert parcel["status"] == status
-        assert parcel["pickup"] is False and parcel["pickup_point"] is None
+        assert parcel["pickup"] is True and parcel["pickup_point"] == "Corner Shop"
 
 
 def test_pickup_site_id_alone_warns_once_and_leaves_the_point_empty(caplog):
