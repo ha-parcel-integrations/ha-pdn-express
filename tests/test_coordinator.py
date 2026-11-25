@@ -4,7 +4,7 @@ The parcel mapping itself is covered by ``test_parcels.py``.
 """
 
 import asyncio
-from unittest.mock import AsyncMock
+from unittest.mock import AsyncMock, patch
 
 from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers.update_coordinator import UpdateFailed
@@ -22,6 +22,7 @@ from custom_components.pdn_express.const import (
     ParcelStatus,
 )
 from custom_components.pdn_express.coordinator import PDNExpressCoordinator
+from custom_components.pdn_express.parcels import normalize_parcel
 
 from .payloads import (
     ACTIVE_CODE,
@@ -523,3 +524,71 @@ async def test_a_parcel_the_delivered_list_leaves_out_still_fires_delivered(hass
 
     assert sorted(e.data["barcode"] for e in delivered) == sorted([first, second])
     assert len(coordinator.delivered) == 1
+
+
+# ---------------------------------------------------------------------------
+# contents overlay
+# ---------------------------------------------------------------------------
+
+
+def _carrier_text(raw: dict, **kwargs) -> dict:
+    parcel = normalize_parcel(raw, **kwargs)
+    parcel["contents"] = "Carrier text"
+    return parcel
+
+
+async def test_user_contents_overlays_the_carrier_value(hass):
+    entry = _entry_with([{CONF_TRACKING_CODE: ACTIVE_CODE}])
+    entry.add_to_hass(hass)
+    client = AsyncMock()
+    client.async_get_parcel.return_value = active_sample()
+    coordinator = PDNExpressCoordinator(hass, client, entry)
+    with patch.object(module, "normalize_parcel", side_effect=_carrier_text):
+        data = await coordinator._async_update_data()
+        assert data[0]["contents"] == "Carrier text"
+
+        coordinator.contents_store.async_set(ACTIVE_CODE, "Running shoes")
+        data = await coordinator._async_update_data()
+        assert data[0]["contents"] == "Running shoes"
+
+        coordinator.contents_store.async_set(ACTIVE_CODE, None)
+        data = await coordinator._async_update_data()
+        assert data[0]["contents"] == "Carrier text"
+
+
+async def test_user_contents_reaches_the_delivered_list_and_events(hass):
+    entry = _entry_with([{CONF_TRACKING_CODE: ACTIVE_CODE}])
+    entry.add_to_hass(hass)
+    client = AsyncMock()
+    coordinator = PDNExpressCoordinator(hass, client, entry)
+    coordinator.contents_store.async_set(ACTIVE_CODE, "Running shoes")
+    delivered = []
+    hass.bus.async_listen(f"{DOMAIN}_parcel_delivered", delivered.append)
+
+    client.async_get_parcel.return_value = active_sample(ACTIVE_CODE)
+    await coordinator._async_update_data()
+    client.async_get_parcel.return_value = delivered_sample(ACTIVE_CODE)
+    await coordinator._async_update_data()
+    await hass.async_block_till_done()
+
+    assert coordinator.delivered[0]["contents"] == "Running shoes"
+    assert delivered[0].data["contents"] == "Running shoes"
+
+
+async def test_reapply_contents_resets_then_overlays_without_fetching(hass):
+    entry = _entry_with([{CONF_TRACKING_CODE: ACTIVE_CODE}])
+    entry.add_to_hass(hass)
+    client = AsyncMock()
+    client.async_get_parcel.return_value = active_sample()
+    coordinator = PDNExpressCoordinator(hass, client, entry)
+    coordinator.data = await coordinator._async_update_data()
+    client.async_get_parcel.reset_mock()
+
+    coordinator.contents_store.async_set(ACTIVE_CODE, "Running shoes")
+    coordinator.async_reapply_contents()
+    assert coordinator.data[0]["contents"] == "Running shoes"
+
+    coordinator.contents_store.async_set(ACTIVE_CODE, None)
+    coordinator.async_reapply_contents()
+    assert coordinator.data[0]["contents"] is None
+    assert client.async_get_parcel.await_count == 0

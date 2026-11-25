@@ -38,6 +38,7 @@ A custom Home Assistant integration that tracks your [PDN Express](https://pdn.e
 - Summary sensors: incoming parcels, next delivery, recently delivered parcels
 - Read-only **Deliveries** calendar (PDN Express publishes no delivery window, so it stays empty)
 - `pdn_express.track_parcel` / `pdn_express.untrack_parcel` services, so a dashboard button can add a parcel
+- A `contents` field on every parcel, set in your own words with the `pdn_express.update_contents` service; it titles the calendar event and shows on the next-delivery sensor
 - Events + device triggers for no-code automations (parcel registered, status changed, delivered, delivery time changed)
 - Opt-in per-parcel status history
 - Manual refresh button and a diagnostic last-update sensor
@@ -160,8 +161,9 @@ Every payload is the full normalised parcel plus the hub's `device_id`. Events a
 
 | Service | Fields | Description |
 |---|---|---|
-| `pdn_express.track_parcel` | `tracking_code` | Start tracking a parcel |
+| `pdn_express.track_parcel` | `tracking_code`, `contents` (optional) | Start tracking a parcel, optionally noting what is in it |
 | `pdn_express.untrack_parcel` | `tracking_code` | Stop tracking a parcel |
+| `pdn_express.update_contents` | `tracking_code`, `contents` | Set what is in a parcel, tracked or not; an empty `contents` clears it. The text is stored locally, titles the calendar event and shows as the `contents` attribute of the next-delivery sensor |
 
 ## Examples
 

@@ -6,10 +6,29 @@ track_parcel:
       selector:
         text:
 
+    contents:
+      required: false
+      example: "Running shoes"
+      selector:
+        text:
+
 untrack_parcel:
   fields:
     tracking_code:
       required: true
       example: "PDN0000000000"
+      selector:
+        text:
+
+update_contents:
+  fields:
+    tracking_code:
+      required: true
+      example: "PDN0000000000"
+      selector:
+        text:
+    contents:
+      required: false
+      example: "Running shoes"
       selector:
         text:
